@@ -1,29 +1,22 @@
 //hydro.h
-
-#ifndef hydro.h
-#define hydro.h
-#include "list.h"
-
-
-int main();
-//define flowlist class
+//Creator: Aditya Prasad
 
 void displayHeader();
 
-FlowList readData();
+int main();
 
-void menu(FlowList& listA);
+int readData();
 
-void displayData(FlowList& listA); //call averge
+int menu();
 
-void addData(FlowList& listA);
+void display();
 
-void removeData(FlowList& listA);
+void addData();
 
-void average(FlowList& listA);
+void removeData();
 
-int saveData(FlowList& listA);
+double Average();
+
+void  SaveData();
 
 void pressEnter();
-
-#endif hydro.h

@@ -1,38 +1,30 @@
 //list.h
+//Creator: Aditya Prasad
 
 #ifndef list.h
 #define list.h
 
-typedef int ListItem;
-
-struct List_Item {
+struct  ListItem
+{
     int year;
     double flow;
+    ListItem(int year,double flow);
+    ListItem();
 };
 
-struct Node {
-    List_Item item;
-    Node *next;
+struct  Node
+{
+    ListItem item;
+    Node* next;
+    Node(int year,double flow);
 };
 
-class FlowList {
+class FlowList{
     public:
-        FlowList();
-        FlowList(const FlowList& source);
-        FlowList& operator =(const FlowList& rhs);
-        ~FlowList();
-
-        void insert(const List_Item& itemA);
-        void remove(const List_Item& itemA);
-        void print() const;
-
-    private:
-        Node *headM;
-        void destroy();
-        void copy(const FlowList& source);
+    Node* head; // head pointer to the list
+    FlowList();
+    Node* add(ListItem item);
+    Node* _delete(int year);
 };
-
-
-
 
 #endif

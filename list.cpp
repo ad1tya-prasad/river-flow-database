@@ -1,119 +1,94 @@
-
-#include <iostream>
-#include <stdlib.h>
-#include <string>
-#include <fstream>
-
-using namespace std;
+//list.cpp
+//Creator: Aditya Prasad
 
 #include "list.h"
-#include "hydro.h"
+
+ListItem::ListItem(int year,double flow){
+    this->year = year;
+    this->flow = flow;
+}
+ListItem::ListItem(){
+    this->year = 0 , this->flow = 0;
+}
+
+Node::Node(int year,double flow)
+{
+    this->item = ListItem(year,flow);
+    this->next = nullptr;
+}
 
 FlowList::FlowList()
-: headM(0) // headM is a pointer, so it is initialized to 0.
 {
+    head = nullptr; 
 }
-
-FlowList::FlowList(const FlowList& source)
+Node *FlowList::add(ListItem item)
 {
-    copy(source);
-}
-
-FlowList& FlowList::operator =(const FlowList& rhs)
-{
-    if (this != &rhs) {
-        destroy();
-        copy(rhs);
+    Node *newNode = new Node(item.year,item.flow); 
+    if (head == nullptr)
+    {
+        
+        head = newNode;
+        return head;
     }
-    return *this;
-}
-
-FlowList::~FlowList()
-{
-    destroy();
-}
-
-
-void FlowList::print() const {
-    cout << '[';
-    if (headM != 0) {
-        cout << ' ' << headM->item;
-        for (const Node *p = headM->next; p != 0; p = p->next)
-            cout << ", " << p->item;
-    }
-    cout << " ]\n";
-}
-
-void FlowList::insert(const List_Item& item)
-{
-    Node *new_node = new Node;
-    new_node->item = item;
     
-    if (headM == 0 || item.year <= headM->item.year ) {
-        new_node->next = headM;
-        headM = new_node;
+    Node *curr = head;
+    Node *prev = nullptr;
+    while (curr != nullptr && curr->item.year < newNode->item.year)
+    {
+        
+        prev = curr;
+        curr = curr->next;
     }
-
-    else {
-        Node *before = headM;     
-        Node *after = headM->next;
-
-        while(after != 0 && item.year > after->item.year) {  
-            before = after;
-            after = after->next;
-        }
-        new_node->next = after;
-        before->next = new_node;
+    if (curr == nullptr)
+    {
+        
+        prev->next = newNode; 
+        return newNode;
     }
+   
+    if (curr->item.year == item.year)
+    {
+        
+        return nullptr;
+    }
+    
+    if (prev == nullptr)
+    {
+        head = newNode;
+        newNode->next = curr;
+        return newNode;
+    }
+    
+    prev->next = newNode;
+    newNode->next = curr;
+    return newNode;
 }
-
-void FlowList::remove(const List_Item& item)
+Node *FlowList::_delete(int year)
 {
-    if (headM == 0) {
-        return;
+    Node *curr = head;
+    Node *prev = nullptr;
+    
+    while (curr != nullptr && curr->item.year != year)
+    {
+        
+        prev = curr;
+        curr = curr->next;
     }
-    if (headM->item.year == item.year) {
-        Node *temp = headM;
-        headM = headM->next;
-        delete temp;
-        return;
+    if (curr == nullptr)
+    {
+        
+        return nullptr;
     }
-    Node *before = headM;
-    Node *after = headM->next;
-    while (after != 0 && after->item.year != item.year) {
-        before = after;
-        after = after->next;
+    
+    if (prev == nullptr)
+    {
+        
+        head = curr->next;
+        curr->next = nullptr;
+        return curr;
     }
-    if (after != 0) {
-        before->next = after->next;
-        delete after;
-    }
+    
+    prev->next = curr->next;
+    curr->next = nullptr;
+    return curr;
 }
-
-void FlowList::destroy()
-{
-    while (headM != 0) {
-        Node *temp = headM;
-        headM = headM->next;
-        delete temp;
-    }
-}
-
-void FlowList::copy(const FlowList& source)
-{
-    if (source.headM == 0) {
-        headM = 0;
-    }
-    else {
-        headM = new Node;
-        headM->item = source.headM->item;
-        Node *newp = headM;
-        for (Node *p = source.headM->next; p != 0; p = p->next) {
-            newp->next = new Node;
-            newp = newp->next;
-            newp->item = p->item;
-        }
-        newp->next = 0;
-    }
-}
-

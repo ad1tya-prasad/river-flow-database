@@ -1,152 +1,148 @@
-#include <stdlib.h>
-#include <string>
-#include <fstream>
-#include <iterator>
-#include <iostream>
+//hydro.cpp
+//Creator: Aditya Prasad
 
+#include"hydro.h"
+#include"list.cpp"
+#include<iostream>
+#include<fstream>
+#include<sstream>
 using namespace std;
-ifstream inObj;
 
-#include "list.h"
-#include "hydro.h"
-//define the main function
-int main()
-{
-    FlowList listA;
-    displayHeader();
-    listA = readData();
-    menu(listA);
-    return 0;
-}
-//define function displayHeader
-void displayHeader()
-{
-    cout << "Program: Flow Studies - Fall 2022" << endl;
-    cout << "Version: 1.0" << endl;
-    cout << "Lab Section: B01" << endl;
-    cout << "Produced by: Aditya" << endl <<endl;
-    cout << " <<< Press Enter To Continue >>>" << endl;
-}
-//define function readData
-int readData(FlowList& listA)
-{
-    //read input from flow.txt
-    inObj.open("flow.txt");
-    if (!inObj) {
-        cout << "Error opening file flow.txt" << endl;
-        return 1;
-    }
-}
-//define function menu
-void menu(FlowList& listA)
-{
-    int choice;
-    do {
-        cout << "1. Display flow list, and the average" << endl;
-        cout << "2. Add Data" << endl;
-        cout << "3. Save Data into File" << endl;
-        cout << "4. Remove Data" << endl;
-        cout << "5. Exit" << endl;
-        cout << "Enter your choice (1, 2, 3, 4, 5): ";
-        cin >> choice;
-        switch (choice) {
-            case 1:
-                displayData(listA);
-                break;
-            case 2:
-                addData(listA);
-                break;
-            case 3:
-                saveData(listA);
-                break;
-            case 4:
-                removeData(listA);
-                break;
-            case 5:
-                cout << "Thank you for using the program!" << endl;
-                break;
-            default:
-                cout << "Invalid choice. Please try again." << endl;
-                break;
-        }
-    } while (choice != 6);
+FlowList* flowList; 
+void displayHeader(){
+    cout<<"Program: Flow Studies - Fall 2021\n";
+    cout<<"Version: 1.0\n";
+    cout<<"Lab section: B01\n";
+    cout<<"Produced by: Aarushi Roy Choudhury\n";
 }
 
-//define function displayData
-void displayData(FlowList& listA)
-{
-    cout << "Displaying the flow list and the average" << endl;
-    listA.print();
-    average(listA);
-}
-
-//define function addData
-void addData(FlowList& listA)
-{
-    cout << "Adding data to the flow list" << endl;
-    int year;
-    double flow;
-    cout << "Enter the year: ";
-    cin >> year;
-    cout << "Enter the flow: ";
-    cin >> flow;
-    List_Item item;
-    item.year = year;
-    item.flow = flow;
-    listA.insert(item);
-    cout << "Data added successfully!" << endl;
-}
-
-//make a function to save data into a file
-int saveData(FlowList& listA)
-{
-    cout << "Saving data into a file" << endl;
-    ofstream outObj;
-    outObj.open("flow.txt");
-    if (!outObj) {
-        cout << "Error opening file flow.txt" << endl;
-        return 1;
-    }
-    outObj << listA; 
-
-    outObj.close();
-    cout << "Data saved successfully!" << endl;
-}
-
-
-//define function removeData
-void removeData(FlowList& listA)
-{
-    cout << "Removing data from the flow list" << endl;
-    int year;
-    cout << "Enter the year to be removed: ";
-    cin >> year;
-    listA.remove(year);
-    cout << "Data removed successfully!" << endl;
-}
-
-//define function average
-void average(FlowList& listA)
-{
-    cout << "Calculating the average" << endl;
-    double sum = 0;
-    double average;
+int readData(){
+    fstream fin;
+    fin.open("flow.txt");
     int count = 0;
-    List_Item item;
-    for (int i = 0; i < listA.size(); i++) { 
-        item = listA.get(i);
-        sum += item.flow;
-        count++;
+    if(fin.is_open()){
+        string inp;
+        while(getline(fin,inp)){
+            string year , flow;
+            int i = 0;
+            while(inp[i]!=' ')year+=inp[i++];i++;
+            while(i<inp.size())flow+=inp[i++];
+            ListItem listItem(stoi(year),stod(flow));
+            count++;
+            flowList->add(listItem);
+        }
+        fin.close();
     }
-    average = sum / count;
-    cout << "The average is: " << average << endl;
+    else{
+        cout<<"File can not be open\n";
+    }
+
+    return count;
+}
+void SaveData(){
+    ofstream out;
+    out.open("flow.txt",ios::trunc);
+    Node* head = flowList->head;
+    while(head!=nullptr){
+        string text =  to_string(head->item.year) + " " + to_string(head->item.flow);
+        out<<text<<"\n";
+        head=head->next;
+    }
+    out.close();
+}
+int menu(){
+    cout<<"Please select one of the following operations.\n";
+    cout<<"1. Display flow,list and the average\n";
+    cout<<"2. Add data.\n";
+    cout<<"3. Save data into the file.\n";
+    cout<<"4. Remove data.\n";
+    cout<<"5. Quit.\n";
+    cout<<"Enter your choice (1, 2, 3, 4, of 5):";
+    int choice; cin>>choice;
+    return choice;
+}
+double Average(){
+    Node* head = flowList->head;
+    double sum = 0 , count = 0;
+    while(head!=nullptr){
+        sum += head->item.flow;
+        count++;
+        head = head->next;
+    }
+    return (count==0) ? 0 : (sum/count);
+}
+void display(){
+    cout<<"Year  "<<"Flow\n";
+    Node* head = flowList->head;
+    while(head!=nullptr){
+        cout<<head->item.year<<"   "<<head->item.flow<<"\n";
+        head = head->next;
+    }
+    cout<<"The annual average of the flow is: "<<Average()<<" billions of cubic meter.\n";
 }
 
-//define function pressEnter
-void pressEnter()
-{
-    cout << " <<< Press Enter To Continue >>>" << endl;
-    cin.ignore();
+void addData(){
+    int year; double flow;
+    cout<<"Please enter a year: "; cin>>year;
+    cout<<"Please enter the flow: ";cin>>flow;
+    ListItem listItem(year,flow);
+    Node* n=flowList->add(listItem);
+    if(n==nullptr){
+        cout<<"Error: duplicate data.\n";
+    }
+    else cout<<"New record inserted successfully.\n";
+}
+
+void removeData(){
+    int year;
+    cout<<"Please enter the year that you want to remove: ";cin>>year;
+    Node* r=flowList->_delete(year);
+    if(r==nullptr){
+        cout<<"Error: No such data.\n";
+    }
+    else{
+        cout<<"Record was successfully removed.\n";
+    }
+}
+
+void pressEnter(){
+    cout<<"\n<<< Press Enter to Continue >>>\n";
     cin.get();
 }
 
+
+int main(){
+    flowList = new FlowList();
+    int numRecord;
+    displayHeader();
+    numRecord = readData();
+    int quit = 0;
+    while(1){
+        switch (menu())
+        {
+        case 1:
+            display();
+            pressEnter();
+            break;
+        case 2:
+            addData();
+            pressEnter();
+            break;
+        case 3:
+            SaveData();
+            pressEnter();
+            break;
+        case 4:
+            removeData();
+            pressEnter();
+            break;
+        case 5:
+            cout<<"\nProgram Terminated.\n\n";
+            quit=1;
+            break;
+        default:
+            cout<<"\nNot a valid input.\n";
+        }
+        if(quit==1)break;
+    }
+}
